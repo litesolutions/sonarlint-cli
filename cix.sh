@@ -9,10 +9,11 @@ echo "Running with SQ=$SQ_VERSION for $CI_BUILD_NUMBER"
   echo $NEW_VERSION
   mkdir -p target
   cd target
-  curl --user $ARTIFACTORY_QA_READER_USERNAME:$ARTIFACTORY_QA_READER_PASSWORD -sSLO https://repox.sonarsource.com/sonarsource-public-qa/org/sonarsource/sonarlint/sonarlint-cli/$NEW_VERSION/sonarlint-cli-$NEW_VERSION.jar
+  curl --user $ARTIFACTORY_QA_READER_USERNAME:$ARTIFACTORY_QA_READER_PASSWORD -sSLO https://repox.sonarsource.com/sonarsource-public-qa/org/sonarsource/sonarlint/sonarlint-cli/$NEW_VERSION/sonarlint-cli-$NEW_VERSION.zip
   cd ..
  
-  mvn install:install-file -Dfile=target/sonarlint-cli-$NEW_VERSION.jar
+  mvn install:install-file -Dfile=target/sonarlint-cli-$NEW_VERSION.zip -DgroupId=org.sonarsource.sonarlint \
+    -DartifactId=sonarlint-cli -Dversion=$NEW_VERSION -Dpackaging=zip
 
   sonarlintVersion=`mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version | grep -Ev '(^\[|Download\w+:)'`
 
