@@ -1,6 +1,6 @@
 #!/bin/bash
 set -euo pipefail
-echo "Running with SQ=$SQ_VERSION for $CI_BUILD_NUMBER"
+echo "Running for $CI_BUILD_NUMBER"
   
   #deploy the version built by travis
   CURRENT_VERSION=`mvn help:evaluate -Dexpression="project.version" | grep -v '^\[\|Download\w\+\:'`
