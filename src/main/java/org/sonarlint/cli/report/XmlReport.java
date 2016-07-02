@@ -19,39 +19,43 @@
  */
 package org.sonarlint.cli.report;
 
+import freemarker.template.Configuration;
 import freemarker.template.Template;
 import org.sonarlint.cli.util.Logger;
-import org.sonarsource.sonarlint.core.AnalysisResults;
-import org.sonarsource.sonarlint.core.IssueListener;
+import org.sonarsource.sonarlint.core.client.api.common.RuleDetails;
+import org.sonarsource.sonarlint.core.client.api.common.analysis.AnalysisResults;
+import org.sonarsource.sonarlint.core.client.api.common.analysis.Issue;
 
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 public class XmlReport implements Reporter {
   private static final Logger LOGGER = Logger.get();
   private final Path reportFile;
   private final Path reportDir;
-  private final SourceProvider sourceProvider;
+  private final Charset charset;
   private Path basePath;
 
-  public XmlReport(Path basePath, Path reportFile, SourceProvider sourceProvider) {
+  public XmlReport(Path basePath, Path reportFile, Charset charset) {
     this.basePath = basePath;
-    this.sourceProvider = sourceProvider;
+    this.charset = charset;
     this.reportDir = reportFile.getParent().toAbsolutePath();
     this.reportFile = reportFile.toAbsolutePath();
   }
 
   @Override
-  public void execute(String projectName, Date date, List<IssueListener.Issue> issues, AnalysisResults result) {
-    IssuesReport report = new IssuesReport(basePath);
-    for (IssueListener.Issue i : issues) {
+  public void execute(String projectName, Date date, List<Issue> issues, AnalysisResults result, Function<String, RuleDetails> ruleDescriptionProducer) {
+    IssuesReport report = new IssuesReport(basePath, charset);
+    for (Issue i : issues) {
       report.addIssue(i);
     }
     report.setTitle(projectName);
@@ -68,13 +72,11 @@ public class XmlReport implements Reporter {
 
   private void writeToFile(IssuesReport report, Path toFile) {
     try {
-      freemarker.log.Logger.selectLoggerLibrary(freemarker.log.Logger.LIBRARY_NONE);
-      freemarker.template.Configuration cfg = new freemarker.template.Configuration();
+      Configuration cfg = new Configuration(Configuration.VERSION_2_3_25);
       cfg.setClassForTemplateLoading(XmlReport.class, "");
 
       Map<String, Object> root = new HashMap<>();
       root.put("report", report);
-      root.put("sources", sourceProvider);
 
       Template template = cfg.getTemplate("sonarlintxmlreport.ftl");
 
