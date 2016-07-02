@@ -75,6 +75,8 @@ public class Main {
 
     reportFactory.setHtmlPath(opts.htmlReport());
 
+    reportFactory.setXmlPath(opts.xmlReport());
+
     LOGGER.setDebugEnabled(opts.isVerbose());
     LOGGER.setDisplayStackTrace(opts.showStack());
 
