@@ -185,7 +185,7 @@ public class Options {
     LOGGER.info(" -X,--debug               Produce execution debug output");
     LOGGER.info(" -i,--interactive         Run interactively");
     LOGGER.info(" --html-report <path>     HTML report output path (relative or absolute)");
-    LOGGER.info(" --xml-report <path>    XML report output path (relative or absolute)");
+    LOGGER.info(" --xml-report <path>      XML report output path (relative or absolute)");
     LOGGER.info(" --src <glob pattern>     GLOB pattern to identify source files");
     LOGGER.info(" --tests <glob pattern>   GLOB pattern to identify test files");
     LOGGER.info(" --exclude <glob pattern> GLOB pattern to exclude files");
