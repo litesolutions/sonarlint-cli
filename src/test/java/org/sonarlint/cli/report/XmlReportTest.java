@@ -23,45 +23,84 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonarsource.sonarlint.core.AnalysisResults;
-import org.sonarsource.sonarlint.core.IssueListener;
+import org.sonarsource.sonarlint.core.client.api.common.RuleDetails;
+import org.sonarsource.sonarlint.core.client.api.common.analysis.AnalysisResults;
+import org.sonarsource.sonarlint.core.client.api.common.analysis.ClientInputFile;
+import org.sonarsource.sonarlint.core.client.api.common.analysis.Issue;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class XmlReportTest extends BaseReportTest {
+public class XmlReportTest {
   private XmlReport xml;
   private AnalysisResults result;
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
   private Path reportFile;
-  private SourceProvider sources;
 
   @Before
   public void setUp() {
     result = mock(AnalysisResults.class);
     when(result.fileCount()).thenReturn(1);
     reportFile = temp.getRoot().toPath().resolve("report.xml");
-    sources = mock(SourceProvider.class);
-    xml = new XmlReport(temp.getRoot().toPath(), reportFile, sources);
+    xml = new XmlReport(temp.getRoot().toPath(), reportFile, StandardCharsets.UTF_8);
   }
 
   @Test
   public void testXml() {
-    xml.execute("project", new Date(), createTestIssues(temp.getRoot().toPath()), result);
+    xml.execute("project", new Date(), new LinkedList<>(), result, k -> null);
   }
 
-  private static List<IssueListener.Issue> createTestIssues(Path basePath) {
-    List<IssueListener.Issue> issues = new LinkedList<>();
-    issues.add(createTestIssue(basePath.resolve("comp1").toString(), "rule", "ruleName", "MAJOR", 10));
-    issues.add(createTestIssue(basePath.resolve("comp1").toString(), "rule", "ruleName", "MINOR", 10));
+  @Test
+  public void testCopyRuleDesc() {
+    xml.execute("project", new Date(), Arrays.asList(createTestIssue(temp.getRoot().toPath().resolve("test.java").toString(), "squid:1234", "bla", "MAJOR", 1)), result,
+            k -> "squid:1234".equals(k) ? mockRuleDetails() : null);
 
-    return issues;
+    assertThat(reportFile.getParent().resolve("report.xml").toFile())
+            .usingCharset(StandardCharsets.UTF_8)
+            .hasContent(
+            "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
+            "<sonarlintreport>\n" +
+            "  <files>\n" +
+            "      <file name=\"test.java\">\n" +
+            "      <issues total=\"1\">\n" +
+            "        <issue severity=\"major\" key=\"squid:1234\" name=\"bla\" line=\"1\" offset=\"0\"/>\n" +
+            "      </issues>\n" +
+            "    </file>\n" +
+            "  </files>\n" +
+            "</sonarlintreport>");
+  }
+
+  private RuleDetails mockRuleDetails() {
+    RuleDetails ruleDetails = mock(RuleDetails.class);
+    when(ruleDetails.getName()).thenReturn("Foo");
+    when(ruleDetails.getHtmlDescription()).thenReturn("foo bar");
+    return ruleDetails;
+  }
+
+  private static Issue createTestIssue(String filePath, String ruleKey, String name, String severity, int line) {
+    ClientInputFile inputFile = mock(ClientInputFile.class);
+    when(inputFile.getPath()).thenReturn(Paths.get(filePath));
+
+    Issue issue = mock(Issue.class);
+    when(issue.getStartLine()).thenReturn(line);
+    when(issue.getStartLineOffset()).thenReturn(null);
+    when(issue.getEndLine()).thenReturn(line);
+    when(issue.getEndLineOffset()).thenReturn(null);
+    when(issue.getRuleName()).thenReturn(name);
+    when(issue.getInputFile()).thenReturn(inputFile);
+    when(issue.getRuleKey()).thenReturn(ruleKey);
+    when(issue.getSeverity()).thenReturn(severity);
+    return issue;
   }
 }
