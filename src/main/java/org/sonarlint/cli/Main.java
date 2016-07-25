@@ -94,9 +94,6 @@ public class Main {
 
   private void runOnce(Stats stats, SonarLint sonarlint, Options options) throws IOException {
     stats.start();
-    if (!sonarlint.isRunning()) {
-      sonarlint.start();
-    }
     sonarlint.runAnalysis(options, reportFactory, fileFinder);
     sonarlint.stop();
     displayExecutionResult(stats, "SUCCESS");
@@ -105,9 +102,6 @@ public class Main {
   private void runInteractive(Stats stats, SonarLint sonarlint, Options options) throws IOException {
     do {
       stats.start();
-      if (!sonarlint.isRunning()) {
-        sonarlint.start();
-      }
       sonarlint.runAnalysis(options, reportFactory, fileFinder);
       displayExecutionResult(stats, "SUCCESS");
     } while (waitForUser());

@@ -27,8 +27,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonarsource.sonarlint.core.AnalysisResults;
-import org.sonarsource.sonarlint.core.IssueListener;
+import org.sonarsource.sonarlint.core.client.api.common.analysis.AnalysisResults;
+import org.sonarsource.sonarlint.core.client.api.common.analysis.Issue;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
