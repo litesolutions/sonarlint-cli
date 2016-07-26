@@ -37,6 +37,7 @@ public class Options {
   private String src = null;
   private String tests = "";
   private String charset = null;
+  private boolean update = false;
   private String task;
 
   public static Options parse(String[] args) throws ParseException {
@@ -62,6 +63,9 @@ public class Options {
       } else if ("-X".equals(arg) || "--debug".equals(arg)) {
         options.verbose = true;
 
+      } else if ("-u".equals(arg) || "--update".equals(arg)) {
+        options.update = true;
+        
       } else if (arg.startsWith("-D") && !"-D".equals(arg)) {
         arg = arg.substring(2);
         appendPropertyTo(arg, options.props);
@@ -139,6 +143,10 @@ public class Options {
   public String tests() {
     return tests;
   }
+  
+  public boolean isUpdate() {
+    return update;
+  }
 
   public boolean isVersion() {
     return version;
@@ -161,6 +169,7 @@ public class Options {
     LOGGER.info("usage: sonarlint [options]");
     LOGGER.info("");
     LOGGER.info("Options:");
+    LOGGER.info(" -u,--update            Update binding with SonarQube server before analysis");
     LOGGER.info(" -D,--define <arg>      Define property");
     LOGGER.info(" -e,--errors            Produce execution error messages");
     LOGGER.info(" -h,--help              Display help information");
