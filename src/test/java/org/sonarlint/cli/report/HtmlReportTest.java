@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class HtmlReportTest extends BaseReportTest {
+public class HtmlReportTest {
   private HtmlReport html;
   private AnalysisResults result;
 

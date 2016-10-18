@@ -39,7 +39,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonarlint.cli.TestUtils.createTestIssue;
 
-public class ConsoleReportTest extends BaseReportTest {
+public class ConsoleReportTest {
   private final static String PROJECT_NAME = "project";
   private final static Date DATE = new Date(System.currentTimeMillis());
   @Rule
