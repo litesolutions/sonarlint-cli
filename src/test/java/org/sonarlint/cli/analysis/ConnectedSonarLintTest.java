@@ -48,6 +48,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonarlint.cli.config.SonarQubeServer;
 import org.sonarlint.cli.report.ReportFactory;
+import org.sonarsource.sonarlint.core.client.api.common.ProgressMonitor;
 import org.sonarsource.sonarlint.core.client.api.common.RuleDetails;
 import org.sonarsource.sonarlint.core.client.api.common.analysis.ClientInputFile;
 import org.sonarsource.sonarlint.core.client.api.common.analysis.Issue;
@@ -62,6 +63,7 @@ import org.sonarsource.sonarlint.core.tracking.Trackable;
 public class ConnectedSonarLintTest {
   private ConnectedSonarLintEngine engine;
   private ConnectedSonarLint sonarLint;
+  private final boolean verbose = true;
 
   private static AtomicInteger counter = new AtomicInteger();
 
@@ -73,7 +75,7 @@ public class ConnectedSonarLintTest {
     SonarQubeServer server = mock(SonarQubeServer.class);
     when(server.url()).thenReturn("http://localhost:9000");
     engine = mock(ConnectedSonarLintEngine.class);
-    sonarLint = new ConnectedSonarLint(engine, server, "project1");
+    sonarLint = new ConnectedSonarLint(engine, server, "project1", verbose);
   }
 
   @Test
@@ -81,8 +83,8 @@ public class ConnectedSonarLintTest {
     when(engine.allModulesByKey()).thenReturn(getModulesByKey("project1"));
     sonarLint.start(true);
 
-    verify(engine).update(any(ServerConfiguration.class));
-    verify(engine).updateModule(any(ServerConfiguration.class), eq("project1"));
+    verify(engine).update(any(ServerConfiguration.class), any(ProgressMonitor.class));
+    verify(engine).updateModule(any(ServerConfiguration.class), eq("project1"), any(ProgressMonitor.class));
   }
 
   @Test
@@ -90,8 +92,8 @@ public class ConnectedSonarLintTest {
     when(engine.allModulesByKey()).thenReturn(getModulesByKey("project1"));
     sonarLint.start(false);
 
-    verify(engine).update(any(ServerConfiguration.class));
-    verify(engine).updateModule(any(ServerConfiguration.class), eq("project1"));
+    verify(engine).update(any(ServerConfiguration.class), any(ProgressMonitor.class));
+    verify(engine).updateModule(any(ServerConfiguration.class), eq("project1"), any(ProgressMonitor.class));
   }
 
   @Test
@@ -102,8 +104,8 @@ public class ConnectedSonarLintTest {
     when(engine.getGlobalStorageStatus()).thenReturn(status);
     sonarLint.start(false);
 
-    verify(engine).update(any(ServerConfiguration.class));
-    verify(engine).updateModule(any(ServerConfiguration.class), eq("project1"));
+    verify(engine).update(any(ServerConfiguration.class), any(ProgressMonitor.class));
+    verify(engine).updateModule(any(ServerConfiguration.class), eq("project1"), any(ProgressMonitor.class));
   }
 
   @Test
@@ -114,7 +116,7 @@ public class ConnectedSonarLintTest {
     when(engine.getGlobalStorageStatus()).thenReturn(status);
     sonarLint.start(false);
 
-    verify(engine).updateModule(any(ServerConfiguration.class), eq("project1"));
+    verify(engine).updateModule(any(ServerConfiguration.class), eq("project1"), any(ProgressMonitor.class));
     verify(engine).allModulesByKey();
     verify(engine).getGlobalStorageStatus();
     verify(engine).getModuleStorageStatus("project1");
@@ -188,7 +190,7 @@ public class ConnectedSonarLintTest {
     verify(engine).allModulesByKey();
     verify(engine).getGlobalStorageStatus();
     verify(engine).getModuleStorageStatus(moduleKey);
-    verify(engine).updateModule(any(), eq(moduleKey));
+    verify(engine).updateModule(any(), eq(moduleKey), any(ProgressMonitor.class));
     verifyNoMoreInteractions(engine);
   }
 
@@ -198,7 +200,7 @@ public class ConnectedSonarLintTest {
     when(server.url()).thenReturn("http://localhost:9000");
     when(server.token()).thenReturn("dummy token");
     engine = mock(ConnectedSonarLintEngine.class);
-    sonarLint = new ConnectedSonarLint(engine, server, "project1");
+    sonarLint = new ConnectedSonarLint(engine, server, "project1", verbose);
 
     when(engine.allModulesByKey()).thenReturn(getModulesByKey("project1"));
     sonarLint.start(false);
@@ -214,7 +216,7 @@ public class ConnectedSonarLintTest {
     SonarQubeServer server = mock(SonarQubeServer.class);
     when(server.url()).thenReturn("http://localhost:9000");
     engine = mock(ConnectedSonarLintEngine.class);
-    sonarLint = new ConnectedSonarLint(engine, server, "project1");
+    sonarLint = new ConnectedSonarLint(engine, server, "project1", verbose);
 
     when(engine.allModulesByKey()).thenReturn(getModulesByKey("project1"));
     sonarLint.start(false);

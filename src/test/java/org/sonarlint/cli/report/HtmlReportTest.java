@@ -50,7 +50,7 @@ public class HtmlReportTest {
   @Before
   public void setUp() {
     result = mock(AnalysisResults.class);
-    when(result.fileCount()).thenReturn(1);
+    when(result.indexedFileCount()).thenReturn(1);
     reportFile = temp.getRoot().toPath().resolve("report.html");
     html = new HtmlReport(temp.getRoot().toPath(), reportFile, StandardCharsets.UTF_8);
   }

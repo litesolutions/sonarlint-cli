@@ -1,7 +1,7 @@
 /*
  * SonarLint CLI
- * Copyright (C) 2016-2016 SonarSource SA
- * mailto:contact AT sonarsource DOT com
+ * Copyright (C) 2016-2017 SonarSource SA
+ * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -25,6 +25,7 @@ import org.sonarlint.cli.util.Logger;
 import org.sonarsource.sonarlint.core.client.api.common.RuleDetails;
 import org.sonarsource.sonarlint.core.client.api.common.analysis.AnalysisResults;
 import org.sonarsource.sonarlint.core.client.api.common.analysis.Issue;
+import org.sonarsource.sonarlint.core.tracking.Trackable;
 
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
@@ -32,10 +33,7 @@ import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 public class XmlReport implements Reporter {
@@ -53,14 +51,14 @@ public class XmlReport implements Reporter {
   }
 
   @Override
-  public void execute(String projectName, Date date, List<Issue> issues, AnalysisResults result, Function<String, RuleDetails> ruleDescriptionProducer) {
+  public void execute(String projectName, Date date, Collection<Trackable> trackables, AnalysisResults result, Function<String, RuleDetails> ruleDescriptionProducer) {
     IssuesReport report = new IssuesReport(basePath, charset);
-    for (Issue i : issues) {
-      report.addIssue(i);
+    for (Trackable trackable : trackables) {
+      report.addIssue(trackable);
     }
     report.setTitle(projectName);
     report.setDate(date);
-    report.setFilesAnalyzed(result.fileCount());
+    report.setFilesAnalyzed(result.indexedFileCount());
     print(report);
   }
 
@@ -89,4 +87,5 @@ public class XmlReport implements Reporter {
       throw new IllegalStateException("Fail to generate XML Issues Report to: " + toFile, e);
     }
   }
+
 }

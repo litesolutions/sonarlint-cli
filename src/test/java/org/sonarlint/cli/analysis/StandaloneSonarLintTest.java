@@ -46,6 +46,7 @@ import static org.mockito.Mockito.when;
 public class StandaloneSonarLintTest {
   private StandaloneSonarLint sonarLint;
   private StandaloneSonarLintEngine engine;
+  private final boolean verbose = true;
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -56,13 +57,13 @@ public class StandaloneSonarLintTest {
   @Before
   public void setUp() throws IOException {
     engine = new StandaloneSonarLintEngineImpl(StandaloneGlobalConfiguration.builder().build());
-    sonarLint = new StandaloneSonarLint(engine);
+    sonarLint = new StandaloneSonarLint(engine, verbose);
   }
 
   @Test
   public void startStop() {
     engine = mock(StandaloneSonarLintEngine.class);
-    sonarLint = new StandaloneSonarLint(engine);
+    sonarLint = new StandaloneSonarLint(engine, verbose);
     sonarLint.stop();
     verify(engine).stop();
   }

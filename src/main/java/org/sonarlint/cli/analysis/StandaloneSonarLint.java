@@ -26,6 +26,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.sonarlint.cli.report.ReportFactory;
+import org.sonarlint.cli.util.Logger;
+import org.sonarsource.sonarlint.core.client.api.common.LogOutput;
+import org.sonarsource.sonarlint.core.client.api.common.ProgressMonitor;
 import org.sonarsource.sonarlint.core.client.api.common.RuleDetails;
 import org.sonarsource.sonarlint.core.client.api.common.analysis.AnalysisResults;
 import org.sonarsource.sonarlint.core.client.api.common.analysis.ClientInputFile;
@@ -35,10 +38,15 @@ import org.sonarsource.sonarlint.core.tracking.IssueTrackable;
 import org.sonarsource.sonarlint.core.tracking.Trackable;
 
 public class StandaloneSonarLint extends SonarLint {
-  private final StandaloneSonarLintEngine engine;
+  private static final Logger LOGGER = Logger.get();
 
-  public StandaloneSonarLint(StandaloneSonarLintEngine engine) {
+  private final StandaloneSonarLintEngine engine;
+  private final LogOutput logOutput;
+  private final ProgressMonitor progressMonitor = null;
+
+  public StandaloneSonarLint(StandaloneSonarLintEngine engine, boolean verbose) {
     this.engine = engine;
+    this.logOutput = new DefaultLogOutput(LOGGER, verbose);
   }
 
   @Override
@@ -48,7 +56,7 @@ public class StandaloneSonarLint extends SonarLint {
     IssueCollector collector = new IssueCollector();
     StandaloneAnalysisConfiguration config = new StandaloneAnalysisConfiguration(baseDirPath, baseDirPath.resolve(".sonarlint"),
       inputFiles, properties);
-    AnalysisResults result = engine.analyze(config, collector);
+    AnalysisResults result = engine.analyze(config, collector, logOutput, progressMonitor);
     Collection<Trackable> trackables = collector.get().stream().map(IssueTrackable::new).collect(Collectors.toList());
     generateReports(trackables, result, reportFactory, baseDirPath.getFileName().toString(), baseDirPath, start);
   }

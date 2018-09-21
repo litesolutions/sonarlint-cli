@@ -9,7 +9,7 @@
 
   <groupId>org.sonarsource.sonarlint.cli</groupId>
   <artifactId>sonarlint-cli</artifactId>
-  <version>2.2-SNAPSHOT</version>
+  <version>3.7-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>SonarLint CLI</name>
   <url>http://www.sonarlint.org</url>
@@ -43,11 +43,9 @@
   <properties>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
     <gitRepositoryName>sonarlint-cli</gitRepositoryName>
-    <sonarlint.version>2.9.0.276</sonarlint.version>
-    <sonar.java.version>4.3.0.7717</sonar.java.version>
-    <sonar.javascript.version>2.18.0.3454</sonar.javascript.version>
-    <sonar.php.version>2.9.1.1705</sonar.php.version>
-    <sonar.python.version>1.6</sonar.python.version>
+    <sonarlint.version>3.7.1.1756</sonarlint.version>
+    <sonar.javascript.version>4.2.1.6529</sonar.javascript.version>
+    <!--<cachequality.version>2.0.0</cachequality.version>-->
     <!-- Release: enable publication to Bintray -->
     <artifactsToPublish>${project.groupId}:${project.artifactId}:zip</artifactsToPublish>
   </properties>
@@ -74,6 +72,11 @@
       <artifactId>freemarker</artifactId>
       <version>2.3.25-incubating</version>
     </dependency>
+    <!-- <dependency>
+      <groupId>com.cachequality</groupId>
+      <artifactId>cachequality-plugin</artifactId>
+      <version>${cachequality.version}</version>
+    </dependency> -->
 
     <!-- Unit tests -->
     <dependency>
@@ -154,14 +157,6 @@
             <configuration>
               <artifactItems>
                 <artifactItem>
-                  <groupId>org.sonarsource.java</groupId>
-                  <artifactId>sonar-java-plugin</artifactId>
-                  <version>${sonar.java.version}</version>
-                  <type>jar</type>
-                  <overWrite>false</overWrite>
-                  <outputDirectory>${project.build.directory}/plugins</outputDirectory>
-                </artifactItem>
-                <artifactItem>
                   <groupId>org.sonarsource.javascript</groupId>
                   <artifactId>sonar-javascript-plugin</artifactId>
                   <version>${sonar.javascript.version}</version>
@@ -170,17 +165,9 @@
                   <outputDirectory>${project.build.directory}/plugins</outputDirectory>
                 </artifactItem>
                 <artifactItem>
-                  <groupId>org.sonarsource.php</groupId>
-                  <artifactId>sonar-php-plugin</artifactId>
-                  <version>${sonar.php.version}</version>
-                  <type>jar</type>
-                  <overWrite>false</overWrite>
-                  <outputDirectory>${project.build.directory}/plugins</outputDirectory>
-                </artifactItem>
-                <artifactItem>
-                  <groupId>org.sonarsource.python</groupId>
-                  <artifactId>sonar-python-plugin</artifactId>
-                  <version>${sonar.python.version}</version>
+                  <groupId>com.cachequality</groupId>
+                  <artifactId>cachequality-plugin</artifactId>
+                  <version>${cachequality.version}</version>
                   <type>jar</type>
                   <overWrite>false</overWrite>
                   <outputDirectory>${project.build.directory}/plugins</outputDirectory>

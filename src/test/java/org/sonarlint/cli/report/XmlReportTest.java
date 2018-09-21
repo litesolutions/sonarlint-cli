@@ -1,7 +1,7 @@
 /*
  * SonarLint CLI
- * Copyright (C) 2016-2016 SonarSource SA
- * mailto:contact AT sonarsource DOT com
+ * Copyright (C) 2016-2017 SonarSource SA
+ * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -27,14 +27,14 @@ import org.sonarsource.sonarlint.core.client.api.common.RuleDetails;
 import org.sonarsource.sonarlint.core.client.api.common.analysis.AnalysisResults;
 import org.sonarsource.sonarlint.core.client.api.common.analysis.ClientInputFile;
 import org.sonarsource.sonarlint.core.client.api.common.analysis.Issue;
+import org.sonarsource.sonarlint.core.tracking.IssueTrackable;
+import org.sonarsource.sonarlint.core.tracking.Trackable;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -51,7 +51,7 @@ public class XmlReportTest {
   @Before
   public void setUp() {
     result = mock(AnalysisResults.class);
-    when(result.fileCount()).thenReturn(1);
+    when(result.indexedFileCount()).thenReturn(1);
     reportFile = temp.getRoot().toPath().resolve("report.xml");
     xml = new XmlReport(temp.getRoot().toPath(), reportFile, StandardCharsets.UTF_8);
   }
@@ -88,9 +88,9 @@ public class XmlReportTest {
     return ruleDetails;
   }
 
-  private static Issue createTestIssue(String filePath, String ruleKey, String name, String severity, int line) {
+  private static Trackable createTestIssue(String filePath, String ruleKey, String name, String severity, int line) {
     ClientInputFile inputFile = mock(ClientInputFile.class);
-    when(inputFile.getPath()).thenReturn(Paths.get(filePath));
+    when(inputFile.getPath()).thenReturn(filePath);
 
     Issue issue = mock(Issue.class);
     when(issue.getStartLine()).thenReturn(line);
@@ -101,6 +101,6 @@ public class XmlReportTest {
     when(issue.getInputFile()).thenReturn(inputFile);
     when(issue.getRuleKey()).thenReturn(ruleKey);
     when(issue.getSeverity()).thenReturn(severity);
-    return issue;
+    return new IssueTrackable(issue);
   }
 }
