@@ -21,6 +21,7 @@ package org.sonarlint.cli;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -32,6 +33,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonarlint.cli.util.Logger;
 import org.sonarsource.sonarlint.core.client.api.common.analysis.ClientInputFile;
@@ -150,6 +152,12 @@ public class InputFileFinder {
       return charset;
     }
 
+    @CheckForNull
+    @Override
+    public String language() {
+      return null;
+    }
+
     @Override
     public <G> G getClientObject() {
       return null;
@@ -163,6 +171,16 @@ public class InputFileFinder {
     @Override
     public String contents() throws IOException {
       return new String(Files.readAllBytes(path), charset);
+    }
+
+    @Override
+    public String relativePath() {
+      return path.toString();
+    }
+
+    @Override
+    public URI uri() {
+      return path.toUri();
     }
   }
 }

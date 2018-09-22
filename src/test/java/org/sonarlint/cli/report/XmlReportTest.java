@@ -19,11 +19,6 @@
  */
 package org.sonarlint.cli.report;
 
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.LinkedList;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -35,12 +30,18 @@ import org.sonarsource.sonarlint.core.client.api.common.analysis.Issue;
 import org.sonarsource.sonarlint.core.tracking.IssueTrackable;
 import org.sonarsource.sonarlint.core.tracking.Trackable;
 
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.LinkedList;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class HtmlReportTest {
-  private HtmlReport html;
+public class XmlReportTest {
+  private XmlReport xml;
   private AnalysisResults result;
 
   @Rule
@@ -51,43 +52,39 @@ public class HtmlReportTest {
   public void setUp() {
     result = mock(AnalysisResults.class);
     when(result.indexedFileCount()).thenReturn(1);
-    reportFile = temp.getRoot().toPath().resolve("report.html");
-    html = new HtmlReport(temp.getRoot().toPath(), reportFile, StandardCharsets.UTF_8);
+    reportFile = temp.getRoot().toPath().resolve("report.xml");
+    xml = new XmlReport(temp.getRoot().toPath(), reportFile, StandardCharsets.UTF_8);
   }
 
   @Test
-  public void testHtml() {
-    html.execute("project", new Date(), new LinkedList<>(), result, k -> null);
+  public void testXml() {
+    xml.execute("project", new Date(), new LinkedList<>(), result, k -> null);
   }
 
   @Test
   public void testCopyRuleDesc() {
-    html.execute("project", new Date(), Arrays.asList(createTestIssue("foo", "squid:1234", "bla", "MAJOR", 1)), result,
-      k -> "squid:1234".equals(k) ? mockRuleDetails() : null);
+    xml.execute("project", new Date(), Arrays.asList(createTestIssue(temp.getRoot().toPath().resolve("test.java").toString(), "squid:1234", "bla", "MAJOR", 1)), result,
+            k -> "squid:1234".equals(k) ? mockRuleDetails() : null);
 
-    assertThat(reportFile.getParent().resolve("sonarlintreport_rules/rule.css").toFile()).exists();
-    assertThat(reportFile.getParent().resolve("sonarlintreport_rules/squid_1234.html").toFile()).usingCharset(StandardCharsets.UTF_8).hasContent(
-      "<!doctype html><html><head><link href=\"rule.css\" rel=\"stylesheet\" type=\"text/css\" /></head><body><h1><big>Foo</big> (squid:1234)</h1><div class=\"rule-desc\">foo bar</div></body></html>");
-  }
-
-  @Test
-  public void testExtendedDesc() {
-    RuleDetails mockRuleDetailsWithExtendedDesc = mockRuleDetails();
-    when(mockRuleDetailsWithExtendedDesc.getExtendedDescription()).thenReturn("bar baz");
-
-    html.execute("project", new Date(), Arrays.asList(createTestIssue("foo", "squid:1234", "bla", "MAJOR", 1)), result,
-      k -> "squid:1234".equals(k) ? mockRuleDetailsWithExtendedDesc : null);
-
-    assertThat(reportFile.getParent().resolve("sonarlintreport_rules/rule.css").toFile()).exists();
-    assertThat(reportFile.getParent().resolve("sonarlintreport_rules/squid_1234.html").toFile()).usingCharset(StandardCharsets.UTF_8).hasContent(
-      "<!doctype html><html><head><link href=\"rule.css\" rel=\"stylesheet\" type=\"text/css\" /></head><body><h1><big>Foo</big> (squid:1234)</h1><div class=\"rule-desc\">foo bar\n<div>bar baz</div></div></body></html>");
+    assertThat(reportFile.getParent().resolve("report.xml").toFile())
+            .usingCharset(StandardCharsets.UTF_8)
+            .hasContent(
+            "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
+            "<sonarlintreport>\n" +
+            "  <files>\n" +
+            "      <file name=\"test.java\">\n" +
+            "      <issues total=\"1\">\n" +
+            "        <issue severity=\"major\" key=\"squid:1234\" name=\"bla\" line=\"1\" offset=\"0\"/>\n" +
+            "      </issues>\n" +
+            "    </file>\n" +
+            "  </files>\n" +
+            "</sonarlintreport>");
   }
 
   private RuleDetails mockRuleDetails() {
     RuleDetails ruleDetails = mock(RuleDetails.class);
     when(ruleDetails.getName()).thenReturn("Foo");
     when(ruleDetails.getHtmlDescription()).thenReturn("foo bar");
-    when(ruleDetails.getExtendedDescription()).thenReturn("");
     return ruleDetails;
   }
 

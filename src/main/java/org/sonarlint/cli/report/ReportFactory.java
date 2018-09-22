@@ -31,6 +31,7 @@ import javax.annotation.Nullable;
 public class ReportFactory {
   private static final String DEFAULT_REPORT_PATH = ".sonarlint/sonarlint-report.html";
   private String htmlPath = null;
+  private String xmlPath = null;
   private Charset charset;
 
   public ReportFactory(Charset charset) {
@@ -41,7 +42,10 @@ public class ReportFactory {
     List<Reporter> list = new LinkedList<>();
 
     list.add(new ConsoleReport());
-    list.add(new HtmlReport(basePath, getReportFile(basePath), charset));
+    list.add(new HtmlReport(basePath, getReportFile(basePath, htmlPath), charset));
+    if (xmlPath != null) {
+      list.add(new XmlReport(basePath, getReportFile(basePath, xmlPath), charset));
+    }
 
     return list;
   }
@@ -50,11 +54,19 @@ public class ReportFactory {
     htmlPath = path;
   }
 
+  public void setXmlPath(@Nullable String path) {
+    xmlPath = path;
+  }
+
   Path getReportFile(Path basePath) {
+    return getReportFile(basePath, null);
+  }
+
+  Path getReportFile(Path basePath, String filePath) {
     Path reportPath;
 
-    if (htmlPath != null) {
-      reportPath = Paths.get(htmlPath);
+    if (filePath != null) {
+      reportPath = Paths.get(filePath);
 
       if (!reportPath.isAbsolute()) {
         reportPath = basePath.resolve(reportPath).toAbsolutePath();

@@ -32,6 +32,8 @@ import org.sonarlint.cli.config.SonarQubeServer;
 import org.sonarlint.cli.report.ReportFactory;
 import org.sonarlint.cli.util.Logger;
 import org.sonarlint.cli.util.SystemInfo;
+import org.sonarsource.sonarlint.core.client.api.common.LogOutput;
+import org.sonarsource.sonarlint.core.client.api.common.ProgressMonitor;
 import org.sonarsource.sonarlint.core.client.api.common.RuleDetails;
 import org.sonarsource.sonarlint.core.client.api.common.analysis.AnalysisResults;
 import org.sonarsource.sonarlint.core.client.api.common.analysis.ClientInputFile;
@@ -58,11 +60,14 @@ public class ConnectedSonarLint extends SonarLint {
   private final ConnectedSonarLintEngine engine;
   private final String moduleKey;
   private final SonarQubeServer server;
+  private final LogOutput logOutput;
+  private final ProgressMonitor progressMonitor = null;
 
-  ConnectedSonarLint(ConnectedSonarLintEngine engine, SonarQubeServer server, String moduleKey) {
+  ConnectedSonarLint(ConnectedSonarLintEngine engine, SonarQubeServer server, String moduleKey, boolean verbose) {
     this.engine = engine;
     this.server = server;
     this.moduleKey = moduleKey;
+    this.logOutput = new DefaultLogOutput(LOGGER, verbose);
   }
 
   @Override
@@ -92,17 +97,17 @@ public class ConnectedSonarLint extends SonarLint {
     ModuleStorageStatus moduleStorageStatus = engine.getModuleStorageStatus(moduleKey);
     if (moduleStorageStatus == null) {
       LOGGER.info("Updating data for module..");
-      engine.updateModule(getServerConfiguration(server), moduleKey);
+      engine.updateModule(getServerConfiguration(server), moduleKey, progressMonitor);
       LOGGER.info("Module updated");
     } else if (moduleStorageStatus.isStale()) {
       LOGGER.info("Module's data is stale. Updating..");
-      engine.updateModule(getServerConfiguration(server), moduleKey);
+      engine.updateModule(getServerConfiguration(server), moduleKey, progressMonitor);
       LOGGER.info("Module updated");
     }
   }
 
   private void update() {
-    engine.update(getServerConfiguration(server));
+    engine.update(getServerConfiguration(server), progressMonitor);
     engine.allModulesByKey().keySet().stream()
       .filter(key -> key.equals(moduleKey))
       .findAny()
@@ -112,7 +117,7 @@ public class ConnectedSonarLint extends SonarLint {
   }
 
   private void updateModule() {
-    engine.updateModule(getServerConfiguration(server), moduleKey);
+    engine.updateModule(getServerConfiguration(server), moduleKey, progressMonitor);
   }
 
   private static ServerConfiguration getServerConfiguration(SonarQubeServer server) {
@@ -135,7 +140,7 @@ public class ConnectedSonarLint extends SonarLint {
     ConnectedAnalysisConfiguration config = new ConnectedAnalysisConfiguration(moduleKey, baseDirPath, baseDirPath.resolve(".sonarlint"),
       inputFiles, properties);
     IssueCollector collector = new IssueCollector();
-    AnalysisResults result = engine.analyze(config, collector);
+    AnalysisResults result = engine.analyze(config, collector, logOutput, progressMonitor);
     engine.downloadServerIssues(getServerConfiguration(server), moduleKey);
     Collection<Trackable> trackables = matchAndTrack(baseDirPath, collector.get());
     generateReports(trackables, result, reportFactory, baseDirPath.getFileName().toString(), baseDirPath, start);
@@ -153,7 +158,7 @@ public class ConnectedSonarLint extends SonarLint {
     IssueTrackerCache cache = new InMemoryIssueTrackerCache();
     CachingIssueTracker issueTracker = new CachingIssueTrackerImpl(cache);
     trackablesPerFile.entrySet().forEach(entry -> issueTracker.matchAndTrackAsNew(entry.getKey(), entry.getValue()));
-    ServerIssueTracker serverIssueTracker = new ServerIssueTracker(new MyLogger(), new MyConsole(), issueTracker);
+    ServerIssueTracker serverIssueTracker = new ServerIssueTracker(new MyLogger(), issueTracker);
     serverIssueTracker.update(engine, moduleKey, relativePaths);
     return cache;
   }

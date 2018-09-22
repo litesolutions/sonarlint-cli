@@ -121,7 +121,7 @@ public class SonarLintFactory {
       .setServerId(server.id())
       .build();
     ConnectedSonarLintEngineImpl engine = new ConnectedSonarLintEngineImpl(config);
-    return new ConnectedSonarLint(engine, server, projectKey);
+    return new ConnectedSonarLint(engine, server, projectKey, verbose);
   }
 
   private static SonarLint createStandalone(boolean verbose) {
@@ -140,7 +140,7 @@ public class SonarLintFactory {
       .build();
 
     StandaloneSonarLintEngine engine = new StandaloneSonarLintEngineImpl(config);
-    return new StandaloneSonarLint(engine);
+    return new StandaloneSonarLint(engine, verbose);
   }
 
   @VisibleForTesting

@@ -15,6 +15,7 @@
       <excludes>
         <exclude>org.freemarker:freemarker</exclude>
         <exclude>org.sonarsource.sonarlint.core:sonarlint-core</exclude>
+        <exclude>org.sonarsource.sonarlint.core:sonarlint-client-api</exclude>
       </excludes>
     </dependencySet>
   </dependencySets>
